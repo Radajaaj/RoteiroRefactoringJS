@@ -58,11 +58,6 @@ function formatarMoeda(valor) {
       minimumFractionDigits: 2 }).format(valor/100);
 }
 
-
-
-
-
-
 function gerarFaturaStr (fatura, pecas) {
     let faturaStr = `Fatura ${fatura.cliente}\n`;
 
@@ -72,43 +67,39 @@ function gerarFaturaStr (fatura, pecas) {
 
     faturaStr += `Valor total: ${formatarMoeda(calcularTotalFatura(fatura, pecas))}\n`;
     faturaStr += `Créditos acumulados: ${calcularTotalCreditos(fatura, pecas)} \n`;
-    return faturaStr;
-
-
-    ////////////////////////////////////////////////////////////////////////////
-
-
-    let totalFatura = 0;
-    let creditos = 0;
-                          
-                          
-    for (let apre of fatura.apresentacoes) {
-
-      let total = calcularTotalApresentacao(apre);
-    
-      // créditos para próximas contratações
-      creditos += calcularCreditos(apre);
-    
-      // mais uma linha da fatura
-      faturaStr += `  ${getPeca(apre).nome}: ${formatarMoeda(total)} (${apre.audiencia} assentos)\n`;
-      totalFatura += total;
-    }
-    faturaStr += `Valor total: ${formatarMoeda(totalFatura)}\n`;
-    faturaStr += `Créditos acumulados: ${creditos} \n`;
-
-
-
-
-
-
-
-
-
 
     return faturaStr;
   }
 
+function gerarFaturaHTML(fatura, pecas) {
+  let faturaHTML = '<html>\n';
+  faturaHTML += `<p> Fatura ${fatura.cliente} </p>\n`;
+  faturaHTML += '<ul>\n';
+
+  for (let apre of fatura.apresentacoes) {
+    faturaHTML += `<li>  ${getPeca(apre).nome}: ${formatarMoeda(calcularTotalApresentacao(apre))} (${apre.audiencia} assentos) </li>\n`;
+  }
+
+  faturaHTML += '</ul>\n';
+
+  faturaHTML += `<p> Valor total: ${formatarMoeda(calcularTotalFatura(fatura, pecas))} </p>\n`;
+  faturaHTML += `<p> Créditos acumulados: ${calcularTotalCreditos(fatura, pecas)} </p>\n`;
+
+  faturaHTML += '</html>'
+
+  return faturaHTML;
+}
+
+
+
+
+
+
+
+
 const faturas = JSON.parse(readFileSync('./faturas.json'));
 const pecas = JSON.parse(readFileSync('./pecas.json'));
 const faturaStr = gerarFaturaStr(faturas, pecas);
+const faturasHTML = gerarFaturaHTML(faturas, pecas);
 console.log(faturaStr);
+console.log(faturasHTML);
